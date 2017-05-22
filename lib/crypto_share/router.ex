@@ -16,8 +16,14 @@ defmodule CryptoShare.Router do
       |> put_resp_header("X-Accel-Redirect", path)
       |> send_resp(200, path)
     else
+      {:error, :decrypt_failed} ->
+        Logger.error "Failed to decrypt url #{conn.request_path}"
+        send_resp(conn, 401, "")
+      {:error, :invalid_url} ->
+        Logger.error "Invalid url #{conn.request_path}"
+        send_resp(conn, 401, "")
       {:error, reason} ->
-        Logger.error "Reason: #{reason}"
+        Logger.error "Failed with reason #{inspect reason}"
         send_resp(conn, 401, "")
     end
   end
